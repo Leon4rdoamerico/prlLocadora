@@ -30,6 +30,35 @@ namespace prlLocadora
             cbbGenero.Text = dtFilmes.Rows[registroAtual][4].ToString();
         }
 
+        private void carregaTudoProdutoras()
+        {
+            dtProdutoras = new DataTable();
+            string sql = "SELECT * FROM  tblProdutora ";
+            SqlConnection con = new SqlConnection(connectionString);
+            SqlCommand cmd = new SqlCommand(sql, con);
+            cmd.CommandType = System.Data.CommandType.Text;
+            SqlDataReader reader;
+            con.Open();
+            try
+            {
+                using (reader = cmd.ExecuteReader())
+                {
+                    dtProdutoras.Load(reader);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Erro: " + ex.ToString());
+            }
+            finally
+            {
+                con.Close();
+            }
+            cbbProdutora.DataSource = dtProdutoras;
+            cbbProdutora.DisplayMember = "nomeProd";
+            cbbProdutora.ValueMember = "codProd";
+        }
+
         private void carregaComboProdutoras()
         {
             dtProdutoras = new DataTable();
@@ -101,7 +130,7 @@ namespace prlLocadora
 
         private void btnProximo_Click(object sender, EventArgs e)
         {
-            if(registroAtual < totalregistros - 1)
+            if (registroAtual < totalregistros - 1)
             {
                 registroAtual++;
                 navegar();
@@ -119,7 +148,7 @@ namespace prlLocadora
 
         private void btnUltimo_Click(object sender, EventArgs e)
         {
-             if(registroAtual<totalregistros-1)
+            if (registroAtual < totalregistros - 1)
             {
                 registroAtual = totalregistros - 1;
                 navegar();
@@ -132,6 +161,118 @@ namespace prlLocadora
             {
                 registroAtual = 0;
                 navegar();
+            }
+        }
+
+        private void btnExcluir_Click(object sender, EventArgs e)
+        {
+            string sql = "DELETE FROM tblfilme WHERE codFilme=" + txtCodFilme.Text;
+            SqlConnection con = new SqlConnection(connectionString);
+            SqlCommand cmd = new SqlCommand(sql, con);
+            cmd.CommandType = System.Data.CommandType.Text;
+            con.Open();
+
+            try
+            {
+                int i = cmd.ExecuteNonQuery();
+                if (i > 0)
+                {
+                    MessageBox.Show("Filme apagado com sucesso!");
+                }
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Erro" + ex.ToString());
+            }
+
+            finally
+            {
+                con.Close();
+
+            }
+            dtFilmes = new DataTable();
+            this.frmFilmes_Load(this, e);
+
+
+        }
+
+        private void btnAlterar_Click(object sender, EventArgs e)
+        {
+            novo = false;
+            txtTituloFilme.Enabled = true;
+            txtAno.Enabled = true;
+            cbbGenero.Enabled = true;
+            cbbProdutora.Enabled = true;
+            btnSalvar.Enabled = true;
+            btnNovo.Enabled = false;
+            btnPrimeiro.Enabled = false;
+            btnProximo.Enabled = false;
+            btnUltimo.Enabled = false;
+            btnAnterior.Enabled = false;
+            btnExcluir.Enabled = false;
+            carregaTudoProdutoras();
+            btnAlterar.Enabled = false;
+        }
+
+        private void btnNovo_Click(object sender, EventArgs e)
+        {
+            novo = true;
+            txtTituloFilme.Clear();
+            txtAno.Enabled = true;
+            cbbGenero.Enabled = true;
+            cbbProdutora.SelectedIndex = 0;
+            txtAno.Clear();
+            btnSalvar.Enabled = true;
+            btnNovo.Enabled = false;
+            btnPrimeiro.Enabled = false;
+            btnProximo.Enabled = false;
+            btnUltimo.Enabled = false;
+            btnAnterior.Enabled = false;
+            btnExcluir.Enabled = false;
+            carregaTudoProdutoras();
+            cbbProdutora.SelectedIndex = 0;
+            btnAlterar.Enabled = false;
+            txtCodFilme.Clear();
+        }
+
+        private void btnSalvar_Click(object sender, EventArgs e)
+        {
+            if (novo)
+            {
+                string sql = "INSERT INTO tblFilme(tituloFilme, " +
+                    "anoFilme, generoFilme, codProd) VALUES ('" + txtTituloFilme.Text + "'," + txtAno.Text +
+                    ",'" + cbbProdutora.SelectedItem.ToString() +
+                    ", '" + cbbGenero.Text + "')";
+
+                SqlConnection con = new SqlConnection(connectionString);
+                SqlCommand cmd = new SqlCommand(sql, con);
+                cmd.CommandType = System.Data.CommandType.Text;
+                SqlDataReader reader;
+                con.Open();
+                try
+                {
+                    int i = cmd.ExecuteNonQuery();
+                    if (i > 0)
+                    {
+                        MessageBox.Show("Filme cadastrado com sucesso");
+                        this.frmFilmes_Load(this, e);
+                    }
+                } catch (Exception ex)
+                {
+                    MessageBox.Show("Erro: " + ex); ToString();
+                }
+
+                finally
+                {
+                    con.Close();
+                }
+
+            }
+
+            else
+            {
+
             }
         }
     }
