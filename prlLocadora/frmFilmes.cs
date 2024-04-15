@@ -219,6 +219,7 @@ namespace prlLocadora
         {
             novo = true;
             txtTituloFilme.Clear();
+            txtTituloFilme.Enabled = true;
             txtAno.Enabled = true;
             cbbGenero.Enabled = true;
             cbbProdutora.SelectedIndex = 0;
@@ -231,9 +232,10 @@ namespace prlLocadora
             btnAnterior.Enabled = false;
             btnExcluir.Enabled = false;
             carregaTudoProdutoras();
-            cbbProdutora.SelectedIndex = 0;
+            cbbProdutora.Enabled = true;
             btnAlterar.Enabled = false;
             txtCodFilme.Clear();
+            txtCodFilme.Enabled = true;
         }
 
         private void btnSalvar_Click(object sender, EventArgs e)
@@ -241,14 +243,16 @@ namespace prlLocadora
             if (novo)
             {
                 string sql = "INSERT INTO tblFilme(tituloFilme, " +
-                    "anoFilme, generoFilme, codProd) VALUES ('" + txtTituloFilme.Text + "'," + txtAno.Text +
-                    ",'" + cbbProdutora.SelectedItem.ToString() +
+                    "anoFilme, codProd, generoFilme) VALUES ('" + txtTituloFilme.Text + "'," + txtAno.Text +
+                    "," + cbbProdutora.SelectedValue.ToString() +
                     ", '" + cbbGenero.Text + "')";
+                
 
                 SqlConnection con = new SqlConnection(connectionString);
                 SqlCommand cmd = new SqlCommand(sql, con);
                 cmd.CommandType = System.Data.CommandType.Text;
-                SqlDataReader reader;
+                
+                //SqlDataReader reader;
                 con.Open();
                 try
                 {
@@ -272,8 +276,60 @@ namespace prlLocadora
 
             else
             {
+                string sql = "UPDATE tblFilme set tituloFilme='"+
+                    txtTituloFilme.Text+"', anoFilme="
+                    + txtAno.Text +
+                    ", codProd="
+                    +cbbProdutora.SelectedValue.ToString()+
+                    ", generoFilme='"+ cbbGenero.Text +
+                    "WHERE codFilme="+
+                    txtCodFilme.Text;
+
+                SqlConnection con = new SqlConnection(connectionString);
+                SqlCommand cmd = new SqlCommand(sql, con);
+                cmd.CommandType = System.Data.CommandType.Text;
+                SqlDataReader reader; 
+                con.Open();
+                try
+                {
+                    int i = cmd.ExecuteNonQuery();
+                    if (i > 0)
+                    {
+                        MessageBox.Show("Filme cadastrado com sucesso");
+                        this.frmFilmes_Load(this, e);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Erro: " + ex); ToString();
+                }
+
+                finally
+                {
+                    con.Close();
+                }
+                txtTituloFilme.Enabled = false;
+                txtAno.Enabled = false;
+                cbbGenero.Enabled = true;
+                cbbProdutora.Enabled = false;
+                btnSalvar.Enabled = false;
+                btnNovo.Enabled = false;
+                btnAlterar.Enabled = false;
+                btnExcluir.Enabled = false;
+                btnAnterior.Enabled = false;
+                btnPrimeiro.Enabled = false;
+                btnUltimo.Enabled = false;
+                dtFilmes = new DataTable();
+                frmFilmes_Load(this, e);
+
+
 
             }
+        }
+
+        private void groupBox1_Enter(object sender, EventArgs e)
+        {
+
         }
     }
 }
